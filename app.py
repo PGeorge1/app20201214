@@ -1,10 +1,17 @@
-from flask import Flask, render_template, send_file
+from flask import Flask, render_template, send_file, request
 import seaborn as sns
 import pandas as pd
 import numpy as np
 import time
+import telegram
+
+
 
 app = Flask(__name__)
+
+TOKEN="1401512910:AAGBK1rpry44b3S6Xt-FePKWO7QE-Wm0PNI"
+bot = telegram.Bot(token=TOKEN)
+URL = "https://dsba-201-1-pilot.herokuapp.com/"
 
 links = {"Pairplot" : "pairplot",
          "Download" : "download",
@@ -54,6 +61,31 @@ def pclass_vs_sex():
     plt.savefig('static/tmp/pclass_vs_sex.png')
     return render_index ("pclass_vs_sex.png")
 
+
+def get_response (text):
+    return text
+
+@app.route('/{}'.format(TOKEN), methods=['POST'])
+def respond():
+    update = telegram.Update.de_json(request.get_json(force=True), bot)
+    chat_id = update.message.chat.id
+    msg_id = update.message.message_id
+    text = update.message.text.encode('utf-8').decode()
+    response = get_response(text)
+    bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id)
+    return 'ok'
+
+
+@app.route('/setwebhook', methods=['GET', 'POST'])
+def set_webhook():
+    # we use the bot object to link the bot to our app which live
+    # in the link provided by URL
+    s = bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
+    # something to let us know things work
+    if s:
+        return "webhook setup ok"
+    else:
+        return "webhook setup failed"
 
 if __name__ == '__main__':
     # port -> http port 80 / https port 443
