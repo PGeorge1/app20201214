@@ -61,8 +61,12 @@ def pclass_vs_sex():
     plt.savefig('static/tmp/pclass_vs_sex.png')
     return render_index ("pclass_vs_sex.png")
 
-
+# use prints average age -> return average age
 def get_response (text):
+    if text.lower () == "average age":
+        data = pd.read_csv("data/titanic_train.csv")
+        return data["Age"].mean ()
+
     return text
 
 @app.route('/{}'.format(TOKEN), methods=['POST'])
@@ -90,3 +94,4 @@ def set_webhook():
 if __name__ == '__main__':
     # port -> http port 80 / https port 443
     app.run(host="localhost", port=8888)
+    # print (get_response("average age"))
